@@ -3,7 +3,18 @@
 import streamlit as st
 import requests
 
+def correct_country_name(country_name):
+    corrections = {
+        "usa": "United States",
+        "uk": "United Kingdom",
+        "uae": "United Arab Emirates",
+        "urab emirtae": "United Arab Emirates",
+        "korea": "South Korea"
+    }
+    return corrections.get(country_name.lower(), country_name)
+
 def get_country_info(country_name):
+    country_name = correct_country_name(country_name)
     url = f"https://restcountries.com/v3.1/name/{country_name}?fullText=true"
     response = requests.get(url)
     
@@ -47,4 +58,4 @@ if st.button("Search"):
         st.write(f"**Region:** {result['Region']}")
         st.write(f"**Subregion:** {result['Subregion']}")
     else:
-        st.error("Invalid country name. Please enter a valid country.")
+        st.error("Invalid country name. Please enter a valid country or check spelling.")
