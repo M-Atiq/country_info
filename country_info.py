@@ -1,5 +1,5 @@
 # country_info
-this is a country card all information country here e.g currency time region nd other
+# this is a country card all information country here e.g currency time region nd other
 import streamlit as st
 import requests
 
