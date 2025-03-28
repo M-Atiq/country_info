@@ -8,45 +8,43 @@ def get_country_info(country_name):
     response = requests.get(url)
     
     if response.status_code == 200:
-        countries = response.json()
-        country_data = []
-        for data in countries:
-            country_data.append({
-                "Name": data.get("name", {}).get("common", "N/A"),
-                "Official Name": data.get("name", {}).get("official", "N/A"),
-                "Capital": ", ".join(data.get("capital", ["N/A"])),
-                "Population": f"{data.get('population', 'N/A'):,}",
-                "Region": data.get("region", "N/A"),
-                "Subregion": data.get("subregion", "N/A"),
-                "Currency": ", ".join([f"{v['name']} ({k})" for k, v in data.get("currencies", {}).items()]),
-                "Languages": ", ".join(data.get("languages", {}).values()),
-                "Timezones": ", ".join(data.get("timezones", [])),
-                "Flag": data.get("flags", {}).get("png", ""),
-                "Borders": ", ".join(data.get("borders", ["None"]))
-            })
-        return country_data
+        data = response.json()
+        if isinstance(data, list) and len(data) > 0:
+            country = data[0]
+            name = country.get("name", {}).get("common", "N/A")
+            capital = country.get("capital", ["N/A"])[0]
+            population = country.get("population", "N/A")
+            region = country.get("region", "N/A")
+            subregion = country.get("subregion", "N/A")
+            flag = country.get("flags", {}).get("png", "")
+            
+            return {
+                "Name": name,
+                "Capital": capital,
+                "Population": population,
+                "Region": region,
+                "Subregion": subregion,
+                "Flag": flag
+            }
+        else:
+            return None
     else:
         return None
 
-st.title("🌍 Country Information Card")
+st.title("Country Information Finder")
 
-country_name = st.text_input("Enter full country name:", "United Arab Emirates")
+country_name = st.text_input("Enter country name:", "United States")
 
-if st.button("Get Info"):
-    country_info_list = get_country_info(country_name.strip())
+if st.button("Search"):
+    country_name = country_name.strip().title()  # Normalize input
+    result = get_country_info(country_name)
     
-    if country_info_list:
-        for country_info in country_info_list:
-            st.image(country_info["Flag"], caption=country_info["Name"], width=150)
-            st.write(f"**Official Name:** {country_info['Official Name']}")
-            st.write(f"**Capital:** {country_info['Capital']}")
-            st.write(f"**Population:** {country_info['Population']}")
-            st.write(f"**Region:** {country_info['Region']}")
-            st.write(f"**Subregion:** {country_info['Subregion']}")
-            st.write(f"**Currency:** {country_info['Currency']}")
-            st.write(f"**Languages:** {country_info['Languages']}")
-            st.write(f"**Timezones:** {country_info['Timezones']}")
-            st.write(f"**Neighboring Countries:** {country_info['Borders']}")
-            st.write("---")
+    if result:
+        st.image(result["Flag"], width=150)
+        st.write(f"**Name:** {result['Name']}")
+        st.write(f"**Capital:** {result['Capital']}")
+        st.write(f"**Population:** {result['Population']}")
+        st.write(f"**Region:** {result['Region']}")
+        st.write(f"**Subregion:** {result['Subregion']}")
     else:
-        st.error("Country not found! Please enter the exact name and try again.")
+        st.error("Invalid country name. Please enter a valid country.")
